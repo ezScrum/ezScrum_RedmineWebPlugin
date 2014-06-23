@@ -1,0 +1,7 @@
+ezScrum.Version=version
+ezScrum.FTP.site.ip=ip
+ezScrum.FTP.site.username=username
+ezScrum.FTP.site.password=password
+ezScrum.FTP.site.remoteDir=directory
+ezScrum.FTP.site.srcDir=src directory
+ezScrum.FTP.site.binDir=bin directory

@@ -1,0 +1,89 @@
+<project basedir="." default="quickBuild" name="ExportRedminePlugin">
+
+    <property name="WEB_INF" location="WebContent/WEB-INF" />
+	<property name="Web.Library.Dir" location="${WEB_INF}/lib" />
+	<property name="Output.Dir" location="dist"/>
+	<!-- 
+	     參數說明：
+	     ezScrum.Version				# ezScrum 版本控制
+	     ezScrum.FTP.site.ip    		# ftp ip
+	     ezScrum.FTP.site.username		# ftp 帳號
+	     ezScrum.FTP.site.password		# ftp 密碼
+	     ezScrum.FTP.site.remoteDir		# ftp 上 ezScrum release 的資料夾位置，以版本作為分類準則
+	     ezScrum.FTP.site.srcDir		# ftp 上 ezScrum release src 的資料夾位置
+	     ezScrum.FTP.site.binDir		# ftp 上 ezScrum release bin 的資料夾位置
+	 -->
+	<property file="ezScrum_FTPServer_Config.txt" />
+	
+	<path id="compile.classpath">
+		<fileset dir="${Web.Library.Dir}">
+			<include name="*.jar"/>
+		</fileset>
+	</path>
+	
+	<!-- 建立 dist 輸出 war 的資料夾 -->
+	<target name="makeDir" description="建立dist folder" >
+		<mkdir dir="build/classes"/>
+		<mkdir dir="${Output.Dir}" />
+	</target>
+	
+	<!-- 編譯 java resource  -->
+	<target name="compile" depends="makeDir" description="編譯 java resource">
+		<javac destdir="build/classes" debug="true" srcdir="src">
+			<classpath refid="compile.classpath"/>
+		</javac>
+	</target>
+	
+	<!-- 輸出 war file -->
+	<target name="exportWar" depends="compile" description="輸出 war file">
+		<war destfile="${Output.Dir}/redminePlugin.war" needxmlfile="false" >
+			<fileset dir="WebContent"/>
+			<lib dir="${Web.Library.Dir}"/>
+			<classes dir="build/classes"/>
+		</war>
+	</target>
+	
+	<!-- 刪除資料夾  -->
+	<target name="clean" description="刪除 dist, build/class 的資料夾">
+		<delete dir="${Output.Dir}" />
+		<delete dir="build/classes" />
+	</target>
+	
+	<target name="CreateFolderInFtp">
+	    <echo message="Create plugin folder in ftp" />
+	    <ftp action="mkdir" server="${ezScrum.FTP.site.ip}" userid="${ezScrum.FTP.site.username}" password="${ezScrum.FTP.site.password}" remotedir="${ezScrum.FTP.site.srcDir}" />
+	    <ftp action="mkdir" server="${ezScrum.FTP.site.ip}" userid="${ezScrum.FTP.site.username}" password="${ezScrum.FTP.site.password}" remotedir="${ezScrum.FTP.site.binDir}" />
+	</target>
+	
+	<!-- 將source code, war上傳至 ftp -->
+	<target name="uploadArtifactToFTP" depends="CreateFolderInFtp" description="上傳至FTP" >
+	    <echo message="上傳 redminePlugin.war 至 FTP:${ezScrum.FTP.site.redmineDir}"/>
+	    <ftp server="${ezScrum.FTP.site.ip}" userid="${ezScrum.FTP.site.username}" password="${ezScrum.FTP.site.password}" 
+	         action="send" verbose="yes" depends="yes" 
+	         remotedir="${ezScrum.FTP.site.binDir}">
+	    	<fileset dir="${Output.Dir}" >
+	        	<include name="redminePlugin.war"/>
+	    	</fileset>
+	    </ftp>
+	    <echo message="上傳 RedminePlugin_SourceCode_${ezScrum.Version}.zip 至 FTP:${ezScrum.FTP.site.srcDir}"/>
+	    <ftp server="${ezScrum.FTP.site.ip}" userid="${ezScrum.FTP.site.username}" password="${ezScrum.FTP.site.password}" 
+	         action="send" verbose="yes" depends="yes" 
+	         remotedir="${ezScrum.FTP.site.srcDir}">
+	    	<fileset dir="${Output.Dir}" >
+	        	<include name="RedminePlugin_SourceCode_${ezScrum.Version}.zip"/>
+	    	</fileset>
+	    </ftp>
+	</target>
+	
+	<!-- 壓縮 source code -->
+	<target name="zipSourceCode" description="壓縮程式碼">
+	    <zip destfile="${Output.Dir}/RedminePlugin_SourceCode_${ezScrum.Version}.zip">
+	        <zipfileset dir="" prefix="redminePlugin" excludes="build/**, dist/**, .svn/**, ezScrum_FTPServer_Config.txt"/>
+	    </zip>
+	</target>
+	
+	<target name="quickBuild" depends="clean, makeDir, exportWar" />
+	<target name="release" description="Release ezScrum and upload to FTP" depends="clean, makeDir, zipSourceCode, exportWar, uploadArtifactToFTP">
+	    <echo message="產出release所需要的檔案，包括war和source code到dist folder。"/>
+	</target>
+</project>
