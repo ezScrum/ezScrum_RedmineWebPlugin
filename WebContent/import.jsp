@@ -12,6 +12,8 @@
 
 <!-- javascript has only one way(request to action) to talk with action -->
 <script type="text/javascript" src="<%=pluginExtensioner.getWebPluginRoot() %>webApp/plugin/redmine/protocol/ConfigAction/config.js"></script>
+<script type="text/javascript" src="<%=pluginExtensioner.getWebPluginRoot() %>webApp/plugin/redmine/protocol/RedmineAction/ProjectLeftTree.js"></script>
+<script type="text/javascript" src="<%=pluginExtensioner.getWebPluginRoot() %>webApp/plugin/redmine/protocol/RedmineAction/ProjectPages.js"></script>
 <script type="text/javascript" src="<%=pluginExtensioner.getWebPluginRoot() %>webApp/plugin/redmine/protocol/RedmineAction/addStory.js"></script>
 <script type="text/javascript" src="<%=pluginExtensioner.getWebPluginRoot() %>webApp/plugin/redmine/protocol/RedmineAction/createEzScrumStoryGrid.js"></script>
 <script type="text/javascript" src="<%=pluginExtensioner.getWebPluginRoot() %>webApp/plugin/redmine/protocol/RedmineAction/createRedmineIssueGrid.js"></script>
